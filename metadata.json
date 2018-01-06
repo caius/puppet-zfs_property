@@ -1,0 +1,11 @@
+{
+  "name": "caius-zfs_provider",
+  "version": "0.1.0",
+  "author": "caius",
+  "summary": "Manage ZFS dataset properties",
+  "license": "Apache-2.0",
+  "source": "https://github.com/caius/puppet-zfs_provider",
+  "project_page": "https://github.com/caius/puppet-zfs_provider",
+  "issues_url": "https://github.com/caius/puppet-zfs_provider/issues",
+  "dependencies": []
+}

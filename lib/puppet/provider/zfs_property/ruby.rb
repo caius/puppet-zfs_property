@@ -5,7 +5,7 @@ Puppet::Type.type(:zfs_property).provide(:ruby) do
 
   # @public
   def exists?
-    zfs_get(resource[:dataset], resource[:name]) != nil
+    get_value(resource[:name], resource[:dataset]).set?
   end
 
   # @public
@@ -20,7 +20,7 @@ Puppet::Type.type(:zfs_property).provide(:ruby) do
 
   # @public
   def value
-    result = zfs_get(resource[:dataset], resource[:name])
+    result = get_value(resource[:name], resource[:dataset])
     result.value if result && result.set?
   end
 
@@ -39,7 +39,7 @@ Puppet::Type.type(:zfs_property).provide(:ruby) do
     attr_accessor :dataset, :name, :value, :source
 
     def self.from_output(line)
-      new(*line.split(/\s+/, 4))
+      new(*line.chomp.split(/\s+/, 4))
     end
 
     def initialize(dataset, name, value, source)
@@ -49,14 +49,16 @@ Puppet::Type.type(:zfs_property).provide(:ruby) do
       @source = source
     end
 
+    # We ignore inherited properties as absent ones, otherwise puppet
+    # will try to remove them every run.
     def set?
-      source != "-"
+      ! ["inherited from zones", "-"].include?(source)
     end
   end
 
   # @private
   # @returns PropertyResult
-  def get_value(dataset, name)
+  def get_value(name, dataset)
     output = zfs(:get, "-H", name, dataset)
     PropertyResult.from_output(output)
   rescue Puppet::ExecutionFailure => e

@@ -52,7 +52,9 @@ Puppet::Type.type(:zfs_property).provide(:ruby) do
     # We ignore inherited properties as absent ones, otherwise puppet
     # will try to remove them every run.
     def set?
-      ! ["inherited from zones", "-"].include?(source)
+      return false if source == "-"
+      return false if source.start_with?("inherited from")
+      true
     end
   end
 

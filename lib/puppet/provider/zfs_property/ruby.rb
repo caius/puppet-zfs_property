@@ -4,8 +4,13 @@ Puppet::Type.type(:zfs_property).provide(:ruby) do
   commands :zfs => 'zfs'
 
   # @public
+  def property_name
+    resource[:property] || resource[:name]
+  end
+
+  # @public
   def exists?
-    get_value(resource[:name], resource[:dataset]).set?
+    get_value(property_name, resource[:dataset]).set?
   end
 
   # @public
@@ -15,12 +20,12 @@ Puppet::Type.type(:zfs_property).provide(:ruby) do
 
   # @public
   def destroy
-    zfs(:inherit, resource[:name], resource[:dataset])
+    zfs(:inherit, property_name, resource[:dataset])
   end
 
   # @public
   def value
-    result = get_value(resource[:name], resource[:dataset])
+    result = get_value(property_name, resource[:dataset])
     result.value if result && result.set?
   end
 
@@ -31,7 +36,7 @@ Puppet::Type.type(:zfs_property).provide(:ruby) do
 
   # @private sets the value via zfs command
   def set_value(value)
-    zfs(:set, "#{resource[:name]}=#{value}", resource[:dataset])
+    zfs(:set, "#{property_name}=#{value}", resource[:dataset])
   end
 
   # @private
@@ -64,7 +69,7 @@ Puppet::Type.type(:zfs_property).provide(:ruby) do
     output = zfs(:get, "-H", name, dataset)
     PropertyResult.from_output(output)
   rescue Puppet::ExecutionFailure => e
-    Puppet.debug("Error getting zfs property #{name.inspect} from #{dataset.inspect}: #{e.inspect}")
+    Puppet.debug("Error getting zfs property #{property_name.inspect} from #{dataset.inspect}: #{e.inspect}")
     return
   end
 end

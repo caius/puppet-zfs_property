@@ -20,6 +20,11 @@ Puppet::Type.newtype(:zfs_property) do
   ensurable
 
   newparam(:name) do
+    desc "Name of resource"
+    isnamevar
+  end
+
+  newparam(:property) do
     desc "Property to manage"
   end
 
